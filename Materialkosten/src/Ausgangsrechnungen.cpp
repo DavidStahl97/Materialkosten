@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <filesystem>
 #include "CsvDatei.h"
+#include "Common.h"
 
 /// <summary>
 /// 
@@ -14,8 +15,7 @@ void Ausgangsrechnungen::AlleMaterialienFinden(const std::string& ordner)
 	for (auto& p : std::experimental::filesystem::directory_iterator(ordner))
 	{
 		std::string datei(p.path().string());
-		datei = datei.substr(2);
-		std::cout << datei << std::endl;
+		LOG(datei);
 		
 		MaterialFinden(datei);
 	}

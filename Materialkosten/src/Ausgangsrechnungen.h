@@ -6,7 +6,6 @@
 class Ausgangsrechnungen
 {
 public:
-	///
 	void AlleMaterialienFinden(const std::string& ordner);
 	void DateiMaterialErstellen(const std::string& dateiName);
 
