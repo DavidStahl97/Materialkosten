@@ -7,9 +7,6 @@
 #include "CsvDatei.h"
 #include "Common.h"
 
-/// <summary>
-/// 
-/// </summary>
 void Ausgangsrechnungen::AlleMaterialienFinden(const std::string& ordner)
 {
 	for (auto& p : std::experimental::filesystem::directory_iterator(ordner))
@@ -33,38 +30,36 @@ void Ausgangsrechnungen::MaterialFinden(const std::string& datei)
 	{
 		while (quelle.Good())
 		{
-			std::vector<std::string> zeile;
-			quelle.GetZeile(zeile);
-
 			try
 			{
-				if (zeile.size() < 5)
-				{
-					continue;
-				}
+				const std::string beschreibung(quelle.NaechstesFeld());
 
-				std::stod(zeile[1]);
-				std::stod(zeile[4]);
+				const std::string menge(quelle.NaechstesFeld());
+				std::stod(menge);
 
-				std::string& stringPreis = zeile[3];
+				const std::string einheit(quelle.NaechstesFeld());
+
+				std::string stringPreis(quelle.NaechstesFeld());
 				size_t i = stringPreis.find(",");
 				if (i != std::string::npos)
 				{
 					stringPreis[i] = '.';
 				}
-
 				double preis = std::stod(stringPreis);
-				
-				const std::string einheit(zeile[2]);
+
+				const std::string gesamtpreis(quelle.NaechstesFeld());
+				std::stod(gesamtpreis);
 				if (einheit == "Std." || einheit == "m²" || einheit == "m" || einheit == "m“")
 				{
+					quelle.NaechsteReihe();
 					continue;
 				}
 
-				m_MaterialListe.Hinzufügen(zeile[0], zeile[2], preis);
+				m_MaterialListe.Hinzufügen(beschreibung, einheit, preis);
 			}
 			catch (const std::invalid_argument&)
 			{
+				quelle.NaechsteReihe();
 				continue;
 			}
 		}

@@ -1,10 +1,7 @@
 #include "CsvDatei.h"
 
-namespace
-{
-	const char g_Komma = ',';
-	const char g_Gänsefüsschen = '"';
-}
+#define KOMMA ','
+#define GAENSEFUESCHEN '"'
 
 IfCsvDatei::IfCsvDatei(const std::string& Datei)
 	: m_Quelle(Datei)
@@ -28,11 +25,11 @@ void IfCsvDatei::GetZeile(std::vector<std::string>& Zeile)
 	{
 		char c = zeile[i];
 
-		if (c == g_Gänsefüsschen)
+		if (c == GAENSEFUESCHEN)
 		{
 			bisGänsefuss = !bisGänsefuss;
 		}
-		else if((c == g_Komma && !bisGänsefuss))
+		else if((c == KOMMA && !bisGänsefuss))
 		{
 			Zeile.push_back(String);
 			String.clear();
@@ -46,6 +43,46 @@ void IfCsvDatei::GetZeile(std::vector<std::string>& Zeile)
 	Zeile.push_back(String);
 }
 
+std::string IfCsvDatei::NaechstesFeld(size_t naechsteReihe)
+{
+	std::string feld;
+	bool gaensefüeschen = false;
+
+	while (m_Quelle.good())
+	{
+		char buchstabe = m_Quelle.get();
+
+		if (buchstabe == '\n')
+		{
+			return feld;
+		}
+		else if (buchstabe == KOMMA && !gaensefüeschen)
+		{
+			if (naechsteReihe == 0)
+			{
+				return feld;
+			}
+
+			--naechsteReihe;
+		}
+		else if (buchstabe == GAENSEFUESCHEN && naechsteReihe == 0)
+		{
+			gaensefüeschen = !gaensefüeschen;
+		}
+		else if(naechsteReihe == 0)
+		{
+			feld.push_back(buchstabe);
+		}
+	}
+
+	return feld;
+}
+
+void IfCsvDatei::NaechsteReihe()
+{
+	while (m_Quelle.good() && m_Quelle.good() && m_Quelle.get() != '\n');
+}
+
 OfCsvDatei::OfCsvDatei(const std::string& Datei)
 	: m_Quelle(Datei)
 {
@@ -56,9 +93,9 @@ void OfCsvDatei::SetZeile(const std::vector<std::string>& Zeile)
 	size_t i = 1;
 	for (const std::string& p : Zeile)
 	{
-		if (p.find(g_Komma) != std::string::npos)
+		if (p.find(KOMMA) != std::string::npos)
 		{
-			m_Quelle << g_Gänsefüsschen << p << g_Gänsefüsschen;
+			m_Quelle << GAENSEFUESCHEN << p << GAENSEFUESCHEN;
 		}
 		else
 		{
@@ -67,7 +104,7 @@ void OfCsvDatei::SetZeile(const std::vector<std::string>& Zeile)
 
 		if (i < Zeile.size())
 		{
-			m_Quelle << g_Komma;
+			m_Quelle << KOMMA;
 		}
 
 		++i;
